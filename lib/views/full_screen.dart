@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_wallpaper_manager/flutter_wallpaper_manager.dart';
 import 'package:gallery_saver/gallery_saver.dart';
-import 'package:image_downloader/image_downloader.dart';
-import 'package:open_file/open_file.dart';
 
 class FullScreen extends StatefulWidget {
   String imgUrl;
@@ -15,23 +13,43 @@ class FullScreen extends StatefulWidget {
 }
 
 class _FullScreenState extends State<FullScreen> {
- final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  bool downloading = false;
 
-  Future<void> setwallpaper() async {
+ final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Future<void> setWallpaper() async {
+    String result;
     int location = WallpaperManager.BOTH_SCREEN; //can be Home/Lock Screen
     var file = await DefaultCacheManager().getSingleFile(widget.imgUrl);
     try{
-      bool result = await WallpaperManager.setWallpaperFromFile(file.path, location);
+      result = (await WallpaperManager.setWallpaperFromFile(
+          file.path, WallpaperManager.HOME_SCREEN)) as String;
     }on PlatformException {
-      var result = 'Failed to get wallpaper.';
+      result = 'Failed to get wallpaper.';
       print('failed to get wallpaper');
     }
   }
 
+/* Future<bool> setWallpaper() async {
+   try {
+     int location =
+         WallpaperManagerFlutter.HOME_SCREEN; //can be Home/Lock Screen
+     var file =
+     await DefaultCacheManager().getSingleFile(widget.imgUrl.toString());
+     print(file.path.toString());
+
+     WallpaperManagerFlutter().setwallpaperfromFile(file, location);
+
+     downloading = false;
+   } catch (e) {
+     print('Error occured');
+   }
+
+   return downloading;
+ }*/
 
 
-
- Future<void> setWallpaperFromFile(
+/* Future<void> saveWallpaperFromFile(
       String wallpaperUrl, BuildContext context) async {
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text("Downloading Started...")));
@@ -58,7 +76,7 @@ class _FullScreenState extends State<FullScreen> {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Error Occured - $error")));
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -66,9 +84,44 @@ class _FullScreenState extends State<FullScreen> {
       key: _scaffoldKey,
       floatingActionButton: ElevatedButton(
           onPressed: () async {
-            await setWallpaperFromFile(widget.imgUrl, context);
-            setwallpaper();
-         /*   try {
+            //await saveWallpaperFromFile(widget.imgUrl, context);
+
+
+       /*     var file = await DefaultCacheManager().getSingleFile(widget.imgUrl);
+            int location = WallpaperManager.HOME_SCREEN; // or location = WallpaperManager.LOCK_SCREEN;
+            String result;
+            try {
+              result = await WallpaperManager.setWallpaperFromFile(file.path, location);
+            } on PlatformException {
+              result = 'Failed to get wallpaper.';
+            }
+*/
+
+        /*    var location = WallpaperManager.HOME_SCREEN; // or location = WallpaperManager.LOCK_SCREEN;
+            var file = await DefaultCacheManager().getSingleFile(widget.imgUrl);
+            // or location = WallpaperManager.LOCK_SCREEN;
+            try{
+              final String result = await WallpaperManager.setWallpaperFromFile(file.path, location);
+            }on PlatformException {
+              print('failed to get wallpaper');
+            }*/
+
+        /*    try {
+              int location =
+                  WallpaperManagerFlutter.BOTH_SCREENS; //can be Home/Lock Screen
+              var file =
+              await DefaultCacheManager().getSingleFile(widget.imgUrl.toString());
+              print(file.path.toString());
+
+              WallpaperManagerFlutter().setwallpaperfromFile(file, location);
+
+              downloading = false;
+            } catch (e) {
+              print('Error occured');
+            }*/
+
+
+          try {
               await GallerySaver.saveImage(widget.imgUrl,
                   albumName: 'Wallpaper')
                   .then((success) {
@@ -81,7 +134,8 @@ class _FullScreenState extends State<FullScreen> {
               });
             } catch (e) {
               print('ErrorWhileSavingImg: $e');
-            }*/
+            }
+            setWallpaper();
           },
           child: const Text("Set Wallpaper")),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
